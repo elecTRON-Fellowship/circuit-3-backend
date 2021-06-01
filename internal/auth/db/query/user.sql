@@ -4,22 +4,22 @@ VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
 
 -- name: GetUser :one
-SELECT * FROM users
+SELECT first_name, last_name, user_name, email, phone_no FROM users
 WHERE id = $1
 LIMIT 1;
 
 -- name: GetUserByEmail :one
-SELECT * FROM users
+SELECT first_name, last_name, user_name, email, phone_no FROM users
 WHERE email = $1
 LIMIT 1;
 
 -- name: GetUserByUserName :one
-SELECT * FROM users
+SELECT first_name, last_name, user_name, email, phone_no FROM users
 WHERE user_name = $1
 LIMIT 1;
 
 -- name: ListUsers :many
-SELECT * FROM users
+SELECT first_name, last_name, user_name, email, phone_no FROM users
 LIMIT $1
 OFFSET $2;
 

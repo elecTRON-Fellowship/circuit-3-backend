@@ -56,73 +56,88 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, first_name, last_name, user_name, email, password, phone_no, ts FROM users
+SELECT first_name, last_name, user_name, email, phone_no FROM users
 WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetUser(ctx context.Context, id int64) (Users, error) {
+type GetUserRow struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	UserName  string `json:"user_name"`
+	Email     string `json:"email"`
+	PhoneNo   int32  `json:"phone_no"`
+}
+
+func (q *Queries) GetUser(ctx context.Context, id int64) (GetUserRow, error) {
 	row := q.db.QueryRowContext(ctx, getUser, id)
-	var i Users
+	var i GetUserRow
 	err := row.Scan(
-		&i.ID,
 		&i.FirstName,
 		&i.LastName,
 		&i.UserName,
 		&i.Email,
-		&i.Password,
 		&i.PhoneNo,
-		&i.Ts,
 	)
 	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, first_name, last_name, user_name, email, password, phone_no, ts FROM users
+SELECT first_name, last_name, user_name, email, phone_no FROM users
 WHERE email = $1
 LIMIT 1
 `
 
-func (q *Queries) GetUserByEmail(ctx context.Context, email string) (Users, error) {
+type GetUserByEmailRow struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	UserName  string `json:"user_name"`
+	Email     string `json:"email"`
+	PhoneNo   int32  `json:"phone_no"`
+}
+
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEmailRow, error) {
 	row := q.db.QueryRowContext(ctx, getUserByEmail, email)
-	var i Users
+	var i GetUserByEmailRow
 	err := row.Scan(
-		&i.ID,
 		&i.FirstName,
 		&i.LastName,
 		&i.UserName,
 		&i.Email,
-		&i.Password,
 		&i.PhoneNo,
-		&i.Ts,
 	)
 	return i, err
 }
 
 const getUserByUserName = `-- name: GetUserByUserName :one
-SELECT id, first_name, last_name, user_name, email, password, phone_no, ts FROM users
+SELECT first_name, last_name, user_name, email, phone_no FROM users
 WHERE user_name = $1
 LIMIT 1
 `
 
-func (q *Queries) GetUserByUserName(ctx context.Context, userName string) (Users, error) {
+type GetUserByUserNameRow struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	UserName  string `json:"user_name"`
+	Email     string `json:"email"`
+	PhoneNo   int32  `json:"phone_no"`
+}
+
+func (q *Queries) GetUserByUserName(ctx context.Context, userName string) (GetUserByUserNameRow, error) {
 	row := q.db.QueryRowContext(ctx, getUserByUserName, userName)
-	var i Users
+	var i GetUserByUserNameRow
 	err := row.Scan(
-		&i.ID,
 		&i.FirstName,
 		&i.LastName,
 		&i.UserName,
 		&i.Email,
-		&i.Password,
 		&i.PhoneNo,
-		&i.Ts,
 	)
 	return i, err
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, first_name, last_name, user_name, email, password, phone_no, ts FROM users
+SELECT first_name, last_name, user_name, email, phone_no FROM users
 LIMIT $1
 OFFSET $2
 `
@@ -132,24 +147,29 @@ type ListUsersParams struct {
 	Offset int32 `json:"offset"`
 }
 
-func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]Users, error) {
+type ListUsersRow struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	UserName  string `json:"user_name"`
+	Email     string `json:"email"`
+	PhoneNo   int32  `json:"phone_no"`
+}
+
+func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]ListUsersRow, error) {
 	rows, err := q.db.QueryContext(ctx, listUsers, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []Users{}
+	items := []ListUsersRow{}
 	for rows.Next() {
-		var i Users
+		var i ListUsersRow
 		if err := rows.Scan(
-			&i.ID,
 			&i.FirstName,
 			&i.LastName,
 			&i.UserName,
 			&i.Email,
-			&i.Password,
 			&i.PhoneNo,
-			&i.Ts,
 		); err != nil {
 			return nil, err
 		}

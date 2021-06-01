@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	db "github.com/elecTRON-Fellowship/formula-1/internal/auth/db/sqlc"
+	"github.com/elecTRON-Fellowship/formula-1/pkg/bcrypt"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -26,12 +27,18 @@ func (s *Server) RegisterUser(ctx *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
+	// hash the user password before storing it
+	hashedPass, err := bcrypt.HashPasswd(data.Password)
+	if err != nil {
+		log.Fatal(err)
+		return ctx.Status(fiber.StatusInternalServerError).JSON("There was an error, please try again in some time")
+	}
 	user, err := s.repo.Queries.CreateUser(ctx.Context(), db.CreateUserParams{
 		FirstName: data.FirstName,
 		LastName:  data.LastName,
 		UserName:  data.UserName,
 		Email:     data.Email,
-		Password:  data.Password,
+		Password:  hashedPass,
 		PhoneNo:   data.PhoneNo,
 	})
 	if err != nil {
@@ -207,10 +214,16 @@ func (s *Server) UpdatePassword(ctx *fiber.Ctx) error {
 		log.Fatal(err)
 		return fiber.ErrBadRequest
 	}
+	// hash the user password before storing it
+	hashedPass, err := bcrypt.HashPasswd(data.Password)
+	if err != nil {
+		log.Fatal(err)
+		return ctx.Status(fiber.StatusInternalServerError).JSON("There was an error, please try again in some time")
+	}
 
 	if err = s.repo.UpdatePassword(ctx.Context(), db.UpdatePasswordParams{
 		ID:       int64(id),
-		Password: data.Password,
+		Password: hashedPass,
 	}); err != nil {
 		log.Fatal(err)
 		return fiber.ErrInternalServerError
