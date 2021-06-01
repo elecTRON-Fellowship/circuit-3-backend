@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	config, err := config.LoadConfig(".")
+	config, err := config.LoadConfig("../../config")
 	if err != nil {
 		log.Fatal(err)
 		return
