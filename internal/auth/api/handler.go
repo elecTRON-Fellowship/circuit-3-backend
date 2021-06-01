@@ -24,14 +24,18 @@ func (s *Server) RegisterUser(ctx *fiber.Ctx) error {
 	// parse the request body elements and store them in data
 	if err := ctx.BodyParser(&data); err != nil {
 		log.Fatal(err)
-		return fiber.ErrBadRequest
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Corrupted data format",
+		})
 	}
 
 	// hash the user password before storing it
 	hashedPass, err := bcrypt.HashPasswd(data.Password)
 	if err != nil {
 		log.Fatal(err)
-		return ctx.Status(fiber.StatusInternalServerError).JSON("There was an error, please try again in some time")
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "There was an error creating account, please try again after sometime...",
+		})
 	}
 	user, err := s.repo.Queries.CreateUser(ctx.Context(), db.CreateUserParams{
 		FirstName: data.FirstName,
@@ -43,9 +47,14 @@ func (s *Server) RegisterUser(ctx *fiber.Ctx) error {
 	})
 	if err != nil {
 		log.Fatal(err)
-		return fiber.ErrInternalServerError
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "There was an error creating account, please try again after sometime...",
+		})
 	}
-	return ctx.Status(fiber.StatusOK).JSON(user)
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"data":    user,
+		"message": "User successfully added...",
+	})
 }
 
 // GetUser fetches a user's data given his id
@@ -56,16 +65,23 @@ func (s *Server) GetUser(ctx *fiber.Ctx) error {
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		log.Fatal(err)
-		return fiber.ErrInternalServerError
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "There was an error retreiving account, please try again after sometime...",
+		})
 	}
 
 	user, err := s.repo.GetUser(ctx.Context(), int64(id))
 	if err != nil {
 		log.Fatal(err)
-		return fiber.ErrInternalServerError
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "There was an error retreiving account, please try again after sometime...",
+		})
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(user)
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"data":    user,
+		"message": "User successfully fetched",
+	})
 }
 
 // GetUserByEmail fetches a user's details based on the email provided
@@ -74,9 +90,14 @@ func (s *Server) GetUserByEmail(ctx *fiber.Ctx) error {
 	user, err := s.repo.GetUserByEmail(ctx.Context(), key)
 	if err != nil {
 		log.Fatal(err)
-		return fiber.ErrInternalServerError
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "There was an error retreiving account, please try again after sometime...",
+		})
 	}
-	return ctx.Status(fiber.StatusOK).JSON(user)
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"data":    user,
+		"message": "User successfully fetched",
+	})
 }
 
 // GetUserByUserName fetches a user's details based on the user_name provided
@@ -85,9 +106,14 @@ func (s *Server) GetUserByUserName(ctx *fiber.Ctx) error {
 	user, err := s.repo.GetUserByUserName(ctx.Context(), key)
 	if err != nil {
 		log.Fatal(err)
-		return fiber.ErrInternalServerError
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "There was an error retreiving account, please try again after sometime...",
+		})
 	}
-	return ctx.Status(fiber.StatusOK).JSON(user)
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"data":    user,
+		"message": "User successfully fetched",
+	})
 }
 
 // UpdateFirstName updates firstname of the user given his id
@@ -95,7 +121,9 @@ func (s *Server) UpdateFirstName(ctx *fiber.Ctx) error {
 	data := new(user)
 	if err := ctx.BodyParser(&data); err != nil {
 		log.Fatal(err)
-		return fiber.ErrBadRequest
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Corrupted data sent",
+		})
 	}
 
 	// get the id from query params
@@ -104,7 +132,9 @@ func (s *Server) UpdateFirstName(ctx *fiber.Ctx) error {
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		log.Fatal(err)
-		return fiber.ErrBadRequest
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Corrupted data sent",
+		})
 	}
 
 	if err = s.repo.UpdateFirstName(ctx.Context(), db.UpdateFirstNameParams{
@@ -112,9 +142,13 @@ func (s *Server) UpdateFirstName(ctx *fiber.Ctx) error {
 		FirstName: data.FirstName,
 	}); err != nil {
 		log.Fatal(err)
-		return fiber.ErrInternalServerError
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "There was an error updating firstname, please try again after sometime...",
+		})
 	}
-	return ctx.Status(fiber.StatusOK).JSON("FirstName updated successfully...")
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Firstname successfully updated",
+	})
 }
 
 // UpdateLastName updates lastname of the user given his id
@@ -122,7 +156,9 @@ func (s *Server) UpdateLastName(ctx *fiber.Ctx) error {
 	data := new(user)
 	if err := ctx.BodyParser(&data); err != nil {
 		log.Fatal(err)
-		return fiber.ErrBadRequest
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Corrupted data sent",
+		})
 	}
 
 	// get the id from query params
@@ -131,7 +167,9 @@ func (s *Server) UpdateLastName(ctx *fiber.Ctx) error {
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		log.Fatal(err)
-		return fiber.ErrBadRequest
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Corrupted data sent",
+		})
 	}
 
 	if err = s.repo.UpdateLastName(ctx.Context(), db.UpdateLastNameParams{
@@ -139,9 +177,13 @@ func (s *Server) UpdateLastName(ctx *fiber.Ctx) error {
 		LastName: data.LastName,
 	}); err != nil {
 		log.Fatal(err)
-		return fiber.ErrInternalServerError
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "There was an error updating lastname, please try again after sometime...",
+		})
 	}
-	return ctx.Status(fiber.StatusOK).JSON("LastName updated successfully...")
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Lastname successfully updated",
+	})
 }
 
 // UpdateUserName updates username of the user given his id
@@ -149,7 +191,9 @@ func (s *Server) UpdateUserName(ctx *fiber.Ctx) error {
 	data := new(user)
 	if err := ctx.BodyParser(&data); err != nil {
 		log.Fatal(err)
-		return fiber.ErrBadRequest
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Corrupted data sent",
+		})
 	}
 
 	// get the id from query params
@@ -158,7 +202,9 @@ func (s *Server) UpdateUserName(ctx *fiber.Ctx) error {
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		log.Fatal(err)
-		return fiber.ErrBadRequest
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Corrupted data sent",
+		})
 	}
 
 	if err = s.repo.UpdateUserName(ctx.Context(), db.UpdateUserNameParams{
@@ -166,9 +212,13 @@ func (s *Server) UpdateUserName(ctx *fiber.Ctx) error {
 		UserName: data.UserName,
 	}); err != nil {
 		log.Fatal(err)
-		return fiber.ErrInternalServerError
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "There was an error updating username, please try again after sometime...",
+		})
 	}
-	return ctx.Status(fiber.StatusOK).JSON("UserName updated successfully...")
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Username successfully updated",
+	})
 }
 
 // UpdateEmail updates email of the user given his id
@@ -176,7 +226,9 @@ func (s *Server) UpdateEmail(ctx *fiber.Ctx) error {
 	data := new(user)
 	if err := ctx.BodyParser(&data); err != nil {
 		log.Fatal(err)
-		return fiber.ErrBadRequest
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Corrupted data sent",
+		})
 	}
 
 	// get the id from query params
@@ -185,7 +237,9 @@ func (s *Server) UpdateEmail(ctx *fiber.Ctx) error {
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		log.Fatal(err)
-		return fiber.ErrBadRequest
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Corrupted data sent",
+		})
 	}
 
 	if err = s.repo.UpdateEmail(ctx.Context(), db.UpdateEmailParams{
@@ -193,9 +247,13 @@ func (s *Server) UpdateEmail(ctx *fiber.Ctx) error {
 		Email: data.Email,
 	}); err != nil {
 		log.Fatal(err)
-		return fiber.ErrInternalServerError
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "There was an error updating email, please try again after sometime...",
+		})
 	}
-	return ctx.Status(fiber.StatusOK).JSON("Email updated successfully...")
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Email successfully updated",
+	})
 }
 
 // UpdatePassword updates password of the user given his id
@@ -203,7 +261,9 @@ func (s *Server) UpdatePassword(ctx *fiber.Ctx) error {
 	data := new(user)
 	if err := ctx.BodyParser(&data); err != nil {
 		log.Fatal(err)
-		return fiber.ErrBadRequest
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Corrupted data sent",
+		})
 	}
 
 	// get the id from query params
@@ -212,13 +272,17 @@ func (s *Server) UpdatePassword(ctx *fiber.Ctx) error {
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		log.Fatal(err)
-		return fiber.ErrBadRequest
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Corrupted data sent",
+		})
 	}
 	// hash the user password before storing it
 	hashedPass, err := bcrypt.HashPasswd(data.Password)
 	if err != nil {
 		log.Fatal(err)
-		return ctx.Status(fiber.StatusInternalServerError).JSON("There was an error, please try again in some time")
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "There was an error, please try again after sometime...",
+		})
 	}
 
 	if err = s.repo.UpdatePassword(ctx.Context(), db.UpdatePasswordParams{
@@ -226,9 +290,13 @@ func (s *Server) UpdatePassword(ctx *fiber.Ctx) error {
 		Password: hashedPass,
 	}); err != nil {
 		log.Fatal(err)
-		return fiber.ErrInternalServerError
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "There was an error updating password, please try again after sometime...",
+		})
 	}
-	return ctx.Status(fiber.StatusOK).JSON("Password updated successfully...")
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Password successfully updated",
+	})
 }
 
 // UpdatePhoneNo updates phone number of the user given his id
@@ -236,7 +304,9 @@ func (s *Server) UpdatePhoneNo(ctx *fiber.Ctx) error {
 	data := new(user)
 	if err := ctx.BodyParser(&data); err != nil {
 		log.Fatal(err)
-		return fiber.ErrBadRequest
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Corrupted data sent",
+		})
 	}
 
 	// get the id from query params
@@ -245,7 +315,9 @@ func (s *Server) UpdatePhoneNo(ctx *fiber.Ctx) error {
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		log.Fatal(err)
-		return fiber.ErrBadRequest
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Corrupted data sent",
+		})
 	}
 
 	if err = s.repo.UpdatePhoneNo(ctx.Context(), db.UpdatePhoneNoParams{
@@ -253,9 +325,13 @@ func (s *Server) UpdatePhoneNo(ctx *fiber.Ctx) error {
 		PhoneNo: data.PhoneNo,
 	}); err != nil {
 		log.Fatal(err)
-		return fiber.ErrInternalServerError
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "There was an error updating phone number, please try again after sometime...",
+		})
 	}
-	return ctx.Status(fiber.StatusOK).JSON("Phone Number updated successfully...")
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Phone number successfully updated",
+	})
 }
 
 // ListUsers returns a list of users given the limit and offset in the url query
@@ -265,14 +341,18 @@ func (s *Server) ListUsers(ctx *fiber.Ctx) error {
 	limit, err := strconv.Atoi(limitString)
 	if err != nil {
 		log.Fatal(err)
-		return fiber.ErrBadRequest
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Corrupted data sent",
+		})
 	}
 	// get the value of offset
 	offsetString := ctx.Query("offset")
 	offset, err := strconv.Atoi(offsetString)
 	if err != nil {
 		log.Fatal(err)
-		return fiber.ErrBadRequest
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Corrupted data sent",
+		})
 	}
 	users, err := s.repo.ListUsers(ctx.Context(), db.ListUsersParams{
 		Limit:  int32(limit),
@@ -280,9 +360,14 @@ func (s *Server) ListUsers(ctx *fiber.Ctx) error {
 	})
 	if err != nil {
 		log.Fatal(err)
-		return fiber.ErrInternalServerError
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "There was an error fetching accounts, please try again after sometime...",
+		})
 	}
-	return ctx.Status(fiber.StatusOK).JSON(users)
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"data":    users,
+		"message": "Users successfully fetched.",
+	})
 }
 
 // DeleteUser deletes a user from the db
@@ -293,11 +378,17 @@ func (s *Server) DeleteUser(ctx *fiber.Ctx) error {
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		log.Fatal(err)
-		return fiber.ErrBadRequest
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Corrupted data sent",
+		})
 	}
 	if err := s.repo.DeleteUser(ctx.Context(), int64(id)); err != nil {
 		log.Fatal(err)
-		return fiber.ErrInternalServerError
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "There was an error deleting the account, please try again after sometime...",
+		})
 	}
-	return ctx.Status(fiber.StatusOK).JSON("User successfully deleted...")
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "User successfully deleted.",
+	})
 }
