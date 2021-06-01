@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"database/sql"
 	"log"
 	"strconv"
 
@@ -391,4 +392,68 @@ func (s *Server) DeleteUser(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "User successfully deleted.",
 	})
+}
+
+// Login - it should be self explanatory
+func (s *Server) Login(ctx *fiber.Ctx) error {
+	data := new(user)
+	if err := ctx.BodyParser(&data); err != nil {
+		log.Fatal(err)
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid data, please try again!",
+		})
+	}
+	if data.PhoneNo == 0 {
+		user, err := s.repo.GetUserByUserName(ctx.Context(), data.Email)
+		if err != nil {
+			log.Fatal(err)
+			if err == sql.ErrNoRows {
+				return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+					"error": "The username provided does not exist, maybe try registering first if you haven't.",
+				})
+			}
+			return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "There was an error fetching the user, please try again after sometime...",
+			})
+		}
+		hashedPass, err := bcrypt.HashPasswd(data.Password)
+		if err != nil {
+			log.Fatal(err)
+			return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "There was an error fetching the user, please try again after sometime...",
+			})
+		}
+		if hashedPass != user.Password {
+			return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "The password provided is invalid",
+			})
+		}
+		// TODO: Create JWT and send it with response
+	}
+	user, err := s.repo.GetUserByPhoneNo(ctx.Context(), data.PhoneNo)
+	if err != nil {
+		log.Fatal(err)
+		if err == sql.ErrNoRows {
+			return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "The username provided does not exist, maybe try registering first if you haven't.",
+			})
+		}
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "There was an error fetching the user, please try again after sometime...",
+		})
+	}
+	hashedPass, err := bcrypt.HashPasswd(data.Password)
+	if err != nil {
+		log.Fatal(err)
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "There was an error fetching the user, please try again after sometime...",
+		})
+	}
+	if hashedPass != user.Password {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "The password provided is invalid",
+		})
+	}
+	// TODO: Create JWT and send it with response
+	return nil
 }

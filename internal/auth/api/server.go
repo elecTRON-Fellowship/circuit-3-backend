@@ -44,6 +44,8 @@ func (s *Server) SetRoutes() error {
 	user.Put("/:id/phone", s.UpdatePhoneNo)
 	user.Delete("/:id", s.DeleteUser)
 
+	s.app.Post("/login", s.Login)
+
 	return nil
 }
 

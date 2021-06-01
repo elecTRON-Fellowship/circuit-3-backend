@@ -56,88 +56,95 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT first_name, last_name, user_name, email, phone_no FROM users
+SELECT id, first_name, last_name, user_name, email, password, phone_no, ts FROM users
 WHERE id = $1
 LIMIT 1
 `
 
-type GetUserRow struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	UserName  string `json:"user_name"`
-	Email     string `json:"email"`
-	PhoneNo   int32  `json:"phone_no"`
-}
-
-func (q *Queries) GetUser(ctx context.Context, id int64) (GetUserRow, error) {
+func (q *Queries) GetUser(ctx context.Context, id int64) (Users, error) {
 	row := q.db.QueryRowContext(ctx, getUser, id)
-	var i GetUserRow
+	var i Users
 	err := row.Scan(
+		&i.ID,
 		&i.FirstName,
 		&i.LastName,
 		&i.UserName,
 		&i.Email,
+		&i.Password,
 		&i.PhoneNo,
+		&i.Ts,
 	)
 	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT first_name, last_name, user_name, email, phone_no FROM users
+SELECT id, first_name, last_name, user_name, email, password, phone_no, ts FROM users
 WHERE email = $1
 LIMIT 1
 `
 
-type GetUserByEmailRow struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	UserName  string `json:"user_name"`
-	Email     string `json:"email"`
-	PhoneNo   int32  `json:"phone_no"`
-}
-
-func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEmailRow, error) {
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (Users, error) {
 	row := q.db.QueryRowContext(ctx, getUserByEmail, email)
-	var i GetUserByEmailRow
+	var i Users
 	err := row.Scan(
+		&i.ID,
 		&i.FirstName,
 		&i.LastName,
 		&i.UserName,
 		&i.Email,
+		&i.Password,
 		&i.PhoneNo,
+		&i.Ts,
+	)
+	return i, err
+}
+
+const getUserByPhoneNo = `-- name: GetUserByPhoneNo :one
+SELECT id, first_name, last_name, user_name, email, password, phone_no, ts FROM users
+WHERE phone_no = $1
+LIMIT 1
+`
+
+func (q *Queries) GetUserByPhoneNo(ctx context.Context, phoneNo int32) (Users, error) {
+	row := q.db.QueryRowContext(ctx, getUserByPhoneNo, phoneNo)
+	var i Users
+	err := row.Scan(
+		&i.ID,
+		&i.FirstName,
+		&i.LastName,
+		&i.UserName,
+		&i.Email,
+		&i.Password,
+		&i.PhoneNo,
+		&i.Ts,
 	)
 	return i, err
 }
 
 const getUserByUserName = `-- name: GetUserByUserName :one
-SELECT first_name, last_name, user_name, email, phone_no FROM users
+SELECT id, first_name, last_name, user_name, email, password, phone_no, ts FROM users
 WHERE user_name = $1
 LIMIT 1
 `
 
-type GetUserByUserNameRow struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	UserName  string `json:"user_name"`
-	Email     string `json:"email"`
-	PhoneNo   int32  `json:"phone_no"`
-}
-
-func (q *Queries) GetUserByUserName(ctx context.Context, userName string) (GetUserByUserNameRow, error) {
+func (q *Queries) GetUserByUserName(ctx context.Context, userName string) (Users, error) {
 	row := q.db.QueryRowContext(ctx, getUserByUserName, userName)
-	var i GetUserByUserNameRow
+	var i Users
 	err := row.Scan(
+		&i.ID,
 		&i.FirstName,
 		&i.LastName,
 		&i.UserName,
 		&i.Email,
+		&i.Password,
 		&i.PhoneNo,
+		&i.Ts,
 	)
 	return i, err
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT first_name, last_name, user_name, email, phone_no FROM users
+SELECT id, first_name, last_name, user_name, email, password, phone_no, ts FROM users
 LIMIT $1
 OFFSET $2
 `
@@ -147,29 +154,24 @@ type ListUsersParams struct {
 	Offset int32 `json:"offset"`
 }
 
-type ListUsersRow struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	UserName  string `json:"user_name"`
-	Email     string `json:"email"`
-	PhoneNo   int32  `json:"phone_no"`
-}
-
-func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]ListUsersRow, error) {
+func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]Users, error) {
 	rows, err := q.db.QueryContext(ctx, listUsers, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []ListUsersRow{}
+	items := []Users{}
 	for rows.Next() {
-		var i ListUsersRow
+		var i Users
 		if err := rows.Scan(
+			&i.ID,
 			&i.FirstName,
 			&i.LastName,
 			&i.UserName,
 			&i.Email,
+			&i.Password,
 			&i.PhoneNo,
+			&i.Ts,
 		); err != nil {
 			return nil, err
 		}
