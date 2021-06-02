@@ -7,8 +7,8 @@ createdb:
 dropdb:
 	sudo docker exec -it f1 dropdb formula_1
 
-sqlc_auth:
-	cd ./internal/auth && sqlc generate
+sqlc:
+	sqlc generate
 
 migrateup:
 	migrate -path internal/auth/db/migration -database "postgresql://root:postgres@localhost:5432/formula_1?sslmode=disable" -verbose up

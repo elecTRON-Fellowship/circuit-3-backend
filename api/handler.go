@@ -1,11 +1,11 @@
-package auth
+package api
 
 import (
 	"database/sql"
 	"log"
 	"strconv"
 
-	db "github.com/elecTRON-Fellowship/formula-1/internal/auth/db/sqlc"
+	db "github.com/elecTRON-Fellowship/formula-1/database/sqlc"
 	"github.com/elecTRON-Fellowship/formula-1/pkg/bcrypt"
 	"github.com/gofiber/fiber/v2"
 )
@@ -24,7 +24,7 @@ func (s *Server) RegisterUser(ctx *fiber.Ctx) error {
 	data := new(user)
 	// parse the request body elements and store them in data
 	if err := ctx.BodyParser(&data); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Corrupted data format",
 		})
@@ -33,7 +33,7 @@ func (s *Server) RegisterUser(ctx *fiber.Ctx) error {
 	// hash the user password before storing it
 	hashedPass, err := bcrypt.HashPasswd(data.Password)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "There was an error creating account, please try again after sometime...",
 		})
@@ -47,7 +47,7 @@ func (s *Server) RegisterUser(ctx *fiber.Ctx) error {
 		PhoneNo:   data.PhoneNo,
 	})
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "There was an error creating account, please try again after sometime...",
 		})
@@ -65,7 +65,7 @@ func (s *Server) GetUser(ctx *fiber.Ctx) error {
 	// convert the id from string to int64
 	id, err := strconv.Atoi(key)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "There was an error retreiving account, please try again after sometime...",
 		})
@@ -73,7 +73,7 @@ func (s *Server) GetUser(ctx *fiber.Ctx) error {
 
 	user, err := s.repo.GetUser(ctx.Context(), int64(id))
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "There was an error retreiving account, please try again after sometime...",
 		})
@@ -90,7 +90,7 @@ func (s *Server) GetUserByEmail(ctx *fiber.Ctx) error {
 	key := ctx.Params("email")
 	user, err := s.repo.GetUserByEmail(ctx.Context(), key)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "There was an error retreiving account, please try again after sometime...",
 		})
@@ -103,10 +103,11 @@ func (s *Server) GetUserByEmail(ctx *fiber.Ctx) error {
 
 // GetUserByUserName fetches a user's details based on the user_name provided
 func (s *Server) GetUserByUserName(ctx *fiber.Ctx) error {
-	key := ctx.Params("username")
-	user, err := s.repo.GetUserByUserName(ctx.Context(), key)
+	username := ctx.Get(authorizationPayload)
+	log.Print(username)
+	user, err := s.repo.GetUserByUserName(ctx.Context(), username)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "There was an error retreiving account, please try again after sometime...",
 		})
@@ -121,7 +122,7 @@ func (s *Server) GetUserByUserName(ctx *fiber.Ctx) error {
 func (s *Server) UpdateFirstName(ctx *fiber.Ctx) error {
 	data := new(user)
 	if err := ctx.BodyParser(&data); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Corrupted data sent",
 		})
@@ -132,7 +133,7 @@ func (s *Server) UpdateFirstName(ctx *fiber.Ctx) error {
 	// convert the id from string to int64
 	id, err := strconv.Atoi(key)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Corrupted data sent",
 		})
@@ -142,7 +143,7 @@ func (s *Server) UpdateFirstName(ctx *fiber.Ctx) error {
 		ID:        int64(id),
 		FirstName: data.FirstName,
 	}); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "There was an error updating firstname, please try again after sometime...",
 		})
@@ -156,7 +157,7 @@ func (s *Server) UpdateFirstName(ctx *fiber.Ctx) error {
 func (s *Server) UpdateLastName(ctx *fiber.Ctx) error {
 	data := new(user)
 	if err := ctx.BodyParser(&data); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Corrupted data sent",
 		})
@@ -167,7 +168,7 @@ func (s *Server) UpdateLastName(ctx *fiber.Ctx) error {
 	// convert the id from string to int64
 	id, err := strconv.Atoi(key)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Corrupted data sent",
 		})
@@ -177,7 +178,7 @@ func (s *Server) UpdateLastName(ctx *fiber.Ctx) error {
 		ID:       int64(id),
 		LastName: data.LastName,
 	}); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "There was an error updating lastname, please try again after sometime...",
 		})
@@ -191,7 +192,7 @@ func (s *Server) UpdateLastName(ctx *fiber.Ctx) error {
 func (s *Server) UpdateUserName(ctx *fiber.Ctx) error {
 	data := new(user)
 	if err := ctx.BodyParser(&data); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Corrupted data sent",
 		})
@@ -202,7 +203,7 @@ func (s *Server) UpdateUserName(ctx *fiber.Ctx) error {
 	// convert the id from string to int64
 	id, err := strconv.Atoi(key)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Corrupted data sent",
 		})
@@ -212,7 +213,7 @@ func (s *Server) UpdateUserName(ctx *fiber.Ctx) error {
 		ID:       int64(id),
 		UserName: data.UserName,
 	}); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "There was an error updating username, please try again after sometime...",
 		})
@@ -226,7 +227,7 @@ func (s *Server) UpdateUserName(ctx *fiber.Ctx) error {
 func (s *Server) UpdateEmail(ctx *fiber.Ctx) error {
 	data := new(user)
 	if err := ctx.BodyParser(&data); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Corrupted data sent",
 		})
@@ -237,7 +238,7 @@ func (s *Server) UpdateEmail(ctx *fiber.Ctx) error {
 	// convert the id from string to int64
 	id, err := strconv.Atoi(key)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Corrupted data sent",
 		})
@@ -247,7 +248,7 @@ func (s *Server) UpdateEmail(ctx *fiber.Ctx) error {
 		ID:    int64(id),
 		Email: data.Email,
 	}); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "There was an error updating email, please try again after sometime...",
 		})
@@ -261,7 +262,7 @@ func (s *Server) UpdateEmail(ctx *fiber.Ctx) error {
 func (s *Server) UpdatePassword(ctx *fiber.Ctx) error {
 	data := new(user)
 	if err := ctx.BodyParser(&data); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Corrupted data sent",
 		})
@@ -272,7 +273,7 @@ func (s *Server) UpdatePassword(ctx *fiber.Ctx) error {
 	// convert the id from string to int64
 	id, err := strconv.Atoi(key)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Corrupted data sent",
 		})
@@ -280,7 +281,7 @@ func (s *Server) UpdatePassword(ctx *fiber.Ctx) error {
 	// hash the user password before storing it
 	hashedPass, err := bcrypt.HashPasswd(data.Password)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "There was an error, please try again after sometime...",
 		})
@@ -290,7 +291,7 @@ func (s *Server) UpdatePassword(ctx *fiber.Ctx) error {
 		ID:       int64(id),
 		Password: hashedPass,
 	}); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "There was an error updating password, please try again after sometime...",
 		})
@@ -304,7 +305,7 @@ func (s *Server) UpdatePassword(ctx *fiber.Ctx) error {
 func (s *Server) UpdatePhoneNo(ctx *fiber.Ctx) error {
 	data := new(user)
 	if err := ctx.BodyParser(&data); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Corrupted data sent",
 		})
@@ -315,7 +316,7 @@ func (s *Server) UpdatePhoneNo(ctx *fiber.Ctx) error {
 	// convert the id from string to int64
 	id, err := strconv.Atoi(key)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Corrupted data sent",
 		})
@@ -325,7 +326,7 @@ func (s *Server) UpdatePhoneNo(ctx *fiber.Ctx) error {
 		ID:      int64(id),
 		PhoneNo: data.PhoneNo,
 	}); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "There was an error updating phone number, please try again after sometime...",
 		})
@@ -341,7 +342,7 @@ func (s *Server) ListUsers(ctx *fiber.Ctx) error {
 	limitString := ctx.Query("limit")
 	limit, err := strconv.Atoi(limitString)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Corrupted data sent",
 		})
@@ -350,7 +351,7 @@ func (s *Server) ListUsers(ctx *fiber.Ctx) error {
 	offsetString := ctx.Query("offset")
 	offset, err := strconv.Atoi(offsetString)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Corrupted data sent",
 		})
@@ -360,7 +361,7 @@ func (s *Server) ListUsers(ctx *fiber.Ctx) error {
 		Offset: int32(offset),
 	})
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "There was an error fetching accounts, please try again after sometime...",
 		})
@@ -378,13 +379,13 @@ func (s *Server) DeleteUser(ctx *fiber.Ctx) error {
 	// convert the id from string to int64
 	id, err := strconv.Atoi(key)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Corrupted data sent",
 		})
 	}
 	if err := s.repo.DeleteUser(ctx.Context(), int64(id)); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "There was an error deleting the account, please try again after sometime...",
 		})
@@ -398,17 +399,17 @@ func (s *Server) DeleteUser(ctx *fiber.Ctx) error {
 func (s *Server) Login(ctx *fiber.Ctx) error {
 	data := new(user)
 	if err := ctx.BodyParser(&data); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Invalid data, please try again!",
 		})
 	}
 	if data.PhoneNo == 0 {
-		user, err := s.repo.GetUserByUserName(ctx.Context(), data.Email)
+		user, err := s.repo.GetUserByUserName(ctx.Context(), data.UserName)
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
 			if err == sql.ErrNoRows {
-				return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
 					"error": "The username provided does not exist, maybe try registering first if you haven't.",
 				})
 			}
@@ -416,23 +417,28 @@ func (s *Server) Login(ctx *fiber.Ctx) error {
 				"error": "There was an error fetching the user, please try again after sometime...",
 			})
 		}
-		hashedPass, err := bcrypt.HashPasswd(data.Password)
+		if err = bcrypt.VerifyPasswd(user.Password, data.Password); err != nil {
+			log.Print(err)
+			return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "The password doesn't match with the username provided",
+			})
+		}
+		accessToken, err := s.token.CreateToken(user.UserName, s.config.JWTDuration)
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
 			return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "There was an error fetching the user, please try again after sometime...",
+				"error": "There was an error loging you in. Please try again after sometime...",
 			})
 		}
-		if hashedPass != user.Password {
-			return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "The password provided is invalid",
-			})
-		}
-		// TODO: Create JWT and send it with response
+		return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+			"accessToken": accessToken,
+			"data":        user,
+			"message":     "User successfully logged in.",
+		})
 	}
 	user, err := s.repo.GetUserByPhoneNo(ctx.Context(), data.PhoneNo)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		if err == sql.ErrNoRows {
 			return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error": "The username provided does not exist, maybe try registering first if you haven't.",
@@ -442,18 +448,22 @@ func (s *Server) Login(ctx *fiber.Ctx) error {
 			"error": "There was an error fetching the user, please try again after sometime...",
 		})
 	}
-	hashedPass, err := bcrypt.HashPasswd(data.Password)
+	if err = bcrypt.VerifyPasswd(user.Password, data.Password); err != nil {
+		log.Print(err)
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "The password doesn't match with the username provided",
+		})
+	}
+	accessToken, err := s.token.CreateToken(user.UserName, s.config.JWTDuration)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "There was an error fetching the user, please try again after sometime...",
+			"error": "There was an error loging you in. Please try again after sometime...",
 		})
 	}
-	if hashedPass != user.Password {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "The password provided is invalid",
-		})
-	}
-	// TODO: Create JWT and send it with response
-	return nil
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"accessToken": accessToken,
+		"data":        user,
+		"message":     "User successfully logged in.",
+	})
 }
