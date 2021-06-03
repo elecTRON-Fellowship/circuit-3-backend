@@ -61,7 +61,7 @@ func (s *Server) RegisterUser(ctx *fiber.Ctx) error {
 // GetUser fetches a user's data given his id
 func (s *Server) GetUser(ctx *fiber.Ctx) error {
 	// get the id from query params
-	key := ctx.Params("id")
+	key := ctx.Query("id")
 	// convert the id from string to int64
 	id, err := strconv.Atoi(key)
 	if err != nil {
@@ -87,7 +87,7 @@ func (s *Server) GetUser(ctx *fiber.Ctx) error {
 
 // GetUserByEmail fetches a user's details based on the email provided
 func (s *Server) GetUserByEmail(ctx *fiber.Ctx) error {
-	key := ctx.Params("email")
+	key := ctx.Query("email")
 	user, err := s.repo.GetUserByEmail(ctx.Context(), key)
 	if err != nil {
 		log.Print(err)
@@ -103,9 +103,9 @@ func (s *Server) GetUserByEmail(ctx *fiber.Ctx) error {
 
 // GetUserByUserName fetches a user's details based on the user_name provided
 func (s *Server) GetUserByUserName(ctx *fiber.Ctx) error {
-	username := ctx.Get(authorizationPayload)
-	log.Print(username)
-	user, err := s.repo.GetUserByUserName(ctx.Context(), username)
+	//username := ctx.Get(authorizationPayload)
+	username := ctx.Locals(authorizationPayload)
+	user, err := s.repo.GetUserByUserName(ctx.Context(), username.(string))
 	if err != nil {
 		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -127,20 +127,10 @@ func (s *Server) UpdateFirstName(ctx *fiber.Ctx) error {
 			"error": "Corrupted data sent",
 		})
 	}
+	username := ctx.Locals(authorizationPayload)
 
-	// get the id from query params
-	key := ctx.Params("id")
-	// convert the id from string to int64
-	id, err := strconv.Atoi(key)
-	if err != nil {
-		log.Print(err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Corrupted data sent",
-		})
-	}
-
-	if err = s.repo.UpdateFirstName(ctx.Context(), db.UpdateFirstNameParams{
-		ID:        int64(id),
+	if err := s.repo.UpdateFirstName(ctx.Context(), db.UpdateFirstNameParams{
+		UserName:  username.(string),
 		FirstName: data.FirstName,
 	}); err != nil {
 		log.Print(err)
@@ -163,19 +153,9 @@ func (s *Server) UpdateLastName(ctx *fiber.Ctx) error {
 		})
 	}
 
-	// get the id from query params
-	key := ctx.Params("id")
-	// convert the id from string to int64
-	id, err := strconv.Atoi(key)
-	if err != nil {
-		log.Print(err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Corrupted data sent",
-		})
-	}
-
-	if err = s.repo.UpdateLastName(ctx.Context(), db.UpdateLastNameParams{
-		ID:       int64(id),
+	username := ctx.Locals(authorizationPayload)
+	if err := s.repo.UpdateLastName(ctx.Context(), db.UpdateLastNameParams{
+		UserName: username.(string),
 		LastName: data.LastName,
 	}); err != nil {
 		log.Print(err)
@@ -197,21 +177,11 @@ func (s *Server) UpdateUserName(ctx *fiber.Ctx) error {
 			"error": "Corrupted data sent",
 		})
 	}
+	username := ctx.Locals(authorizationPayload)
 
-	// get the id from query params
-	key := ctx.Params("id")
-	// convert the id from string to int64
-	id, err := strconv.Atoi(key)
-	if err != nil {
-		log.Print(err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Corrupted data sent",
-		})
-	}
-
-	if err = s.repo.UpdateUserName(ctx.Context(), db.UpdateUserNameParams{
-		ID:       int64(id),
-		UserName: data.UserName,
+	if err := s.repo.UpdateUserName(ctx.Context(), db.UpdateUserNameParams{
+		UserName:   username.(string),
+		UserName_2: data.UserName,
 	}); err != nil {
 		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -233,20 +203,10 @@ func (s *Server) UpdateEmail(ctx *fiber.Ctx) error {
 		})
 	}
 
-	// get the id from query params
-	key := ctx.Params("id")
-	// convert the id from string to int64
-	id, err := strconv.Atoi(key)
-	if err != nil {
-		log.Print(err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Corrupted data sent",
-		})
-	}
-
-	if err = s.repo.UpdateEmail(ctx.Context(), db.UpdateEmailParams{
-		ID:    int64(id),
-		Email: data.Email,
+	username := ctx.Locals(authorizationPayload)
+	if err := s.repo.UpdateEmail(ctx.Context(), db.UpdateEmailParams{
+		UserName: username.(string),
+		Email:    data.Email,
 	}); err != nil {
 		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -268,16 +228,7 @@ func (s *Server) UpdatePassword(ctx *fiber.Ctx) error {
 		})
 	}
 
-	// get the id from query params
-	key := ctx.Params("id")
-	// convert the id from string to int64
-	id, err := strconv.Atoi(key)
-	if err != nil {
-		log.Print(err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Corrupted data sent",
-		})
-	}
+	username := ctx.Locals(authorizationPayload)
 	// hash the user password before storing it
 	hashedPass, err := bcrypt.HashPasswd(data.Password)
 	if err != nil {
@@ -288,7 +239,7 @@ func (s *Server) UpdatePassword(ctx *fiber.Ctx) error {
 	}
 
 	if err = s.repo.UpdatePassword(ctx.Context(), db.UpdatePasswordParams{
-		ID:       int64(id),
+		UserName: username.(string),
 		Password: hashedPass,
 	}); err != nil {
 		log.Print(err)
@@ -311,20 +262,10 @@ func (s *Server) UpdatePhoneNo(ctx *fiber.Ctx) error {
 		})
 	}
 
-	// get the id from query params
-	key := ctx.Params("id")
-	// convert the id from string to int64
-	id, err := strconv.Atoi(key)
-	if err != nil {
-		log.Print(err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Corrupted data sent",
-		})
-	}
-
-	if err = s.repo.UpdatePhoneNo(ctx.Context(), db.UpdatePhoneNoParams{
-		ID:      int64(id),
-		PhoneNo: data.PhoneNo,
+	username := ctx.Locals(authorizationPayload)
+	if err := s.repo.UpdatePhoneNo(ctx.Context(), db.UpdatePhoneNoParams{
+		UserName: username.(string),
+		PhoneNo:  data.PhoneNo,
 	}); err != nil {
 		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -374,17 +315,8 @@ func (s *Server) ListUsers(ctx *fiber.Ctx) error {
 
 // DeleteUser deletes a user from the db
 func (s *Server) DeleteUser(ctx *fiber.Ctx) error {
-	// get the id from query params
-	key := ctx.Params("id")
-	// convert the id from string to int64
-	id, err := strconv.Atoi(key)
-	if err != nil {
-		log.Print(err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Corrupted data sent",
-		})
-	}
-	if err := s.repo.DeleteUser(ctx.Context(), int64(id)); err != nil {
+	username := ctx.Locals(authorizationPayload)
+	if err := s.repo.DeleteUser(ctx.Context(), username.(string)); err != nil {
 		log.Print(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "There was an error deleting the account, please try again after sometime...",

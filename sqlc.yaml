@@ -1,9 +1,9 @@
 version: "1"
 packages:
   - name: "db"
-    path: "./db/sqlc"
-    queries: "./db/query"
-    schema: "./db/migration"
+    path: "./database/sqlc"
+    queries: "./database/query"
+    schema: "./database/migration"
     engine: "postgresql"
     emit_prepared_queries: false
     emit_interface: false

@@ -31,33 +31,33 @@ OFFSET $2;
 -- name: UpdateFirstName :exec
 UPDATE users
 SET first_name = $2
-WHERE id = $1;
+WHERE user_name = $1;
 
 -- name: UpdateLastName :exec
 UPDATE users
 SET last_name = $2
-WHERE id = $1;
+WHERE user_name = $1;
 
 -- name: UpdateUserName :exec
 UPDATE users
 SET user_name = $2
-WHERE id = $1;
+WHERE user_name = $1;
 
 -- name: UpdateEmail :exec
 UPDATE users
 SET email = $2
-WHERE id = $1;
+WHERE user_name = $1;
 
 -- name: UpdatePassword :exec
 UPDATE users
 SET password = $2
-WHERE id = $1;
+WHERE user_name = $1;
 
 -- name: UpdatePhoneNo :exec
 UPDATE users
 SET phone_no = $2
-WHERE id = $1;
+WHERE user_name = $1;
 
 -- name: DeleteUser :exec
 DELETE FROM users
-WHERE id = $1;
+WHERE user_name = $1;

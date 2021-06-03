@@ -1,7 +1,6 @@
 package api
 
 import (
-	"log"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -40,9 +39,7 @@ func (s *Server) AuthMiddleware() func(*fiber.Ctx) error {
 				"error": err,
 			})
 		}
-
-		c.Set(authorizationPayload, payload.UserName)
-		log.Print(c.Get(authorizationPayload))
+		c.Locals(authorizationPayload, payload.UserName)
 		return c.Next()
 	}
 }

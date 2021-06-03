@@ -47,11 +47,11 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (Users, 
 
 const deleteUser = `-- name: DeleteUser :exec
 DELETE FROM users
-WHERE id = $1
+WHERE user_name = $1
 `
 
-func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteUser, id)
+func (q *Queries) DeleteUser(ctx context.Context, userName string) error {
+	_, err := q.db.ExecContext(ctx, deleteUser, userName)
 	return err
 }
 
@@ -189,95 +189,95 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]Users, 
 const updateEmail = `-- name: UpdateEmail :exec
 UPDATE users
 SET email = $2
-WHERE id = $1
+WHERE user_name = $1
 `
 
 type UpdateEmailParams struct {
-	ID    int64  `json:"id"`
-	Email string `json:"email"`
+	UserName string `json:"user_name"`
+	Email    string `json:"email"`
 }
 
 func (q *Queries) UpdateEmail(ctx context.Context, arg UpdateEmailParams) error {
-	_, err := q.db.ExecContext(ctx, updateEmail, arg.ID, arg.Email)
+	_, err := q.db.ExecContext(ctx, updateEmail, arg.UserName, arg.Email)
 	return err
 }
 
 const updateFirstName = `-- name: UpdateFirstName :exec
 UPDATE users
 SET first_name = $2
-WHERE id = $1
+WHERE user_name = $1
 `
 
 type UpdateFirstNameParams struct {
-	ID        int64  `json:"id"`
+	UserName  string `json:"user_name"`
 	FirstName string `json:"first_name"`
 }
 
 func (q *Queries) UpdateFirstName(ctx context.Context, arg UpdateFirstNameParams) error {
-	_, err := q.db.ExecContext(ctx, updateFirstName, arg.ID, arg.FirstName)
+	_, err := q.db.ExecContext(ctx, updateFirstName, arg.UserName, arg.FirstName)
 	return err
 }
 
 const updateLastName = `-- name: UpdateLastName :exec
 UPDATE users
 SET last_name = $2
-WHERE id = $1
+WHERE user_name = $1
 `
 
 type UpdateLastNameParams struct {
-	ID       int64  `json:"id"`
+	UserName string `json:"user_name"`
 	LastName string `json:"last_name"`
 }
 
 func (q *Queries) UpdateLastName(ctx context.Context, arg UpdateLastNameParams) error {
-	_, err := q.db.ExecContext(ctx, updateLastName, arg.ID, arg.LastName)
+	_, err := q.db.ExecContext(ctx, updateLastName, arg.UserName, arg.LastName)
 	return err
 }
 
 const updatePassword = `-- name: UpdatePassword :exec
 UPDATE users
 SET password = $2
-WHERE id = $1
+WHERE user_name = $1
 `
 
 type UpdatePasswordParams struct {
-	ID       int64  `json:"id"`
+	UserName string `json:"user_name"`
 	Password string `json:"password"`
 }
 
 func (q *Queries) UpdatePassword(ctx context.Context, arg UpdatePasswordParams) error {
-	_, err := q.db.ExecContext(ctx, updatePassword, arg.ID, arg.Password)
+	_, err := q.db.ExecContext(ctx, updatePassword, arg.UserName, arg.Password)
 	return err
 }
 
 const updatePhoneNo = `-- name: UpdatePhoneNo :exec
 UPDATE users
 SET phone_no = $2
-WHERE id = $1
+WHERE user_name = $1
 `
 
 type UpdatePhoneNoParams struct {
-	ID      int64 `json:"id"`
-	PhoneNo int32 `json:"phone_no"`
+	UserName string `json:"user_name"`
+	PhoneNo  int32  `json:"phone_no"`
 }
 
 func (q *Queries) UpdatePhoneNo(ctx context.Context, arg UpdatePhoneNoParams) error {
-	_, err := q.db.ExecContext(ctx, updatePhoneNo, arg.ID, arg.PhoneNo)
+	_, err := q.db.ExecContext(ctx, updatePhoneNo, arg.UserName, arg.PhoneNo)
 	return err
 }
 
 const updateUserName = `-- name: UpdateUserName :exec
 UPDATE users
 SET user_name = $2
-WHERE id = $1
+WHERE user_name = $1
 `
 
 type UpdateUserNameParams struct {
-	ID       int64  `json:"id"`
-	UserName string `json:"user_name"`
+	UserName   string `json:"user_name"`
+	UserName_2 string `json:"user_name_2"`
 }
 
 func (q *Queries) UpdateUserName(ctx context.Context, arg UpdateUserNameParams) error {
-	_, err := q.db.ExecContext(ctx, updateUserName, arg.ID, arg.UserName)
+	_, err := q.db.ExecContext(ctx, updateUserName, arg.UserName, arg.UserName_2)
 	return err
 }

@@ -11,10 +11,10 @@ sqlc:
 	sqlc generate
 
 migrateup:
-	migrate -path internal/auth/db/migration -database "postgresql://root:postgres@localhost:5432/formula_1?sslmode=disable" -verbose up
+	migrate -path database/migration -database "postgresql://root:postgres@localhost:5432/formula_1?sslmode=disable" -verbose up
 
 migratedown:
-	migrate -path internal/auth/db/migration -database "postgresql://root:postgres@localhost:5432/formula_1?sslmode=disable" -verbose down
+	migrate -path database/migration -database "postgresql://root:postgres@localhost:5432/formula_1?sslmode=disable" -verbose down
 
 test:
 	go test -race -cover ./...

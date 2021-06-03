@@ -50,14 +50,15 @@ func (s *Server) SetRoutes() error {
 
 	// protected routes
 	user := s.app.Group("/user", s.AuthMiddleware())
-	user.Get("/", s.GetUserByEmail)
-	user.Put("/:id/firstname", s.UpdateFirstName)
-	user.Put("/:id/lastname", s.UpdateLastName)
-	user.Put("/:id/username", s.UpdateUserName)
-	user.Put("/:id/email", s.UpdateEmail)
-	user.Put("/:id/password", s.UpdatePassword)
-	user.Put("/:id/phone", s.UpdatePhoneNo)
-	user.Delete("/:id", s.DeleteUser)
+	user.Get("/", s.GetUserByUserName)
+	user.Put("/firstname", s.UpdateFirstName)
+	user.Put("/lastname", s.UpdateLastName)
+	user.Put("/username", s.UpdateUserName)
+	user.Put("/email", s.UpdateEmail)
+	user.Put("/password", s.UpdatePassword)
+	user.Put("/phone", s.UpdatePhoneNo)
+	user.Delete("/", s.DeleteUser)
+
 	s.app.Get("/users", s.AuthMiddleware(), s.ListUsers)
 
 	return nil
