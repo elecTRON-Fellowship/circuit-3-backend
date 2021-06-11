@@ -16,7 +16,7 @@ type user struct {
 	UserName  string `json:"user_name"`
 	Email     string `json:"email"`
 	Password  string `json:"password"`
-	PhoneNo   int32  `json:"phone_no"`
+	PhoneNo   string `json:"phone_no"`
 }
 
 // RegisterUser creates a new user entry in the db
@@ -52,9 +52,17 @@ func (s *Server) RegisterUser(ctx *fiber.Ctx) error {
 			"error": "There was an error creating account, please try again after sometime...",
 		})
 	}
+	accessToken, err := s.token.CreateToken(user.UserName, s.config.JWTDuration)
+	if err != nil {
+		log.Print(err)
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "There was an error loging you in. Please try again after sometime...",
+		})
+	}
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"data":    user,
-		"message": "User successfully added...",
+		"accessToken": accessToken,
+		"data":        user,
+		"message":     "User successfully added...",
 	})
 }
 
@@ -336,7 +344,7 @@ func (s *Server) Login(ctx *fiber.Ctx) error {
 			"error": "Invalid data, please try again!",
 		})
 	}
-	if data.PhoneNo == 0 {
+	if data.PhoneNo == "" {
 		user, err := s.repo.GetUserByUserName(ctx.Context(), data.UserName)
 		if err != nil {
 			log.Print(err)

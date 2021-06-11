@@ -13,6 +13,6 @@ type Users struct {
 	UserName  string    `json:"user_name"`
 	Email     string    `json:"email"`
 	Password  string    `json:"password"`
-	PhoneNo   int32     `json:"phone_no"`
-	Ts        time.Time `json:"ts"`
+	PhoneNo   string    `json:"phone_no"`
+	CreatedAt time.Time `json:"created_at"`
 }

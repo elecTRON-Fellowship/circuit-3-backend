@@ -10,7 +10,7 @@ import (
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (first_name, last_name, user_name,  email, password, phone_no)
 VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, first_name, last_name, user_name, email, password, phone_no, ts
+RETURNING id, first_name, last_name, user_name, email, password, phone_no, created_at
 `
 
 type CreateUserParams struct {
@@ -19,7 +19,7 @@ type CreateUserParams struct {
 	UserName  string `json:"user_name"`
 	Email     string `json:"email"`
 	Password  string `json:"password"`
-	PhoneNo   int32  `json:"phone_no"`
+	PhoneNo   string `json:"phone_no"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (Users, error) {
@@ -40,7 +40,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (Users, 
 		&i.Email,
 		&i.Password,
 		&i.PhoneNo,
-		&i.Ts,
+		&i.CreatedAt,
 	)
 	return i, err
 }
@@ -56,7 +56,7 @@ func (q *Queries) DeleteUser(ctx context.Context, userName string) error {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, first_name, last_name, user_name, email, password, phone_no, ts FROM users
+SELECT id, first_name, last_name, user_name, email, password, phone_no, created_at FROM users
 WHERE id = $1
 LIMIT 1
 `
@@ -72,13 +72,13 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (Users, error) {
 		&i.Email,
 		&i.Password,
 		&i.PhoneNo,
-		&i.Ts,
+		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, first_name, last_name, user_name, email, password, phone_no, ts FROM users
+SELECT id, first_name, last_name, user_name, email, password, phone_no, created_at FROM users
 WHERE email = $1
 LIMIT 1
 `
@@ -94,18 +94,18 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (Users, erro
 		&i.Email,
 		&i.Password,
 		&i.PhoneNo,
-		&i.Ts,
+		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const getUserByPhoneNo = `-- name: GetUserByPhoneNo :one
-SELECT id, first_name, last_name, user_name, email, password, phone_no, ts FROM users
+SELECT id, first_name, last_name, user_name, email, password, phone_no, created_at FROM users
 WHERE phone_no = $1
 LIMIT 1
 `
 
-func (q *Queries) GetUserByPhoneNo(ctx context.Context, phoneNo int32) (Users, error) {
+func (q *Queries) GetUserByPhoneNo(ctx context.Context, phoneNo string) (Users, error) {
 	row := q.db.QueryRowContext(ctx, getUserByPhoneNo, phoneNo)
 	var i Users
 	err := row.Scan(
@@ -116,13 +116,13 @@ func (q *Queries) GetUserByPhoneNo(ctx context.Context, phoneNo int32) (Users, e
 		&i.Email,
 		&i.Password,
 		&i.PhoneNo,
-		&i.Ts,
+		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const getUserByUserName = `-- name: GetUserByUserName :one
-SELECT id, first_name, last_name, user_name, email, password, phone_no, ts FROM users
+SELECT id, first_name, last_name, user_name, email, password, phone_no, created_at FROM users
 WHERE user_name = $1
 LIMIT 1
 `
@@ -138,13 +138,13 @@ func (q *Queries) GetUserByUserName(ctx context.Context, userName string) (Users
 		&i.Email,
 		&i.Password,
 		&i.PhoneNo,
-		&i.Ts,
+		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, first_name, last_name, user_name, email, password, phone_no, ts FROM users
+SELECT id, first_name, last_name, user_name, email, password, phone_no, created_at FROM users
 LIMIT $1
 OFFSET $2
 `
@@ -171,7 +171,7 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]Users, 
 			&i.Email,
 			&i.Password,
 			&i.PhoneNo,
-			&i.Ts,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -258,7 +258,7 @@ WHERE user_name = $1
 
 type UpdatePhoneNoParams struct {
 	UserName string `json:"user_name"`
-	PhoneNo  int32  `json:"phone_no"`
+	PhoneNo  string `json:"phone_no"`
 }
 
 func (q *Queries) UpdatePhoneNo(ctx context.Context, arg UpdatePhoneNoParams) error {
