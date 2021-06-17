@@ -2,35 +2,28 @@ import express from "express";
 import crypto from "crypto-js";
 import { calcSignature } from "../util/signature";
 import axios from "axios";
-import { db } from "../util/firebase";
 
 require("dotenv").config();
 
-export const createWallet = async (
+export const retreiveBalance = async (
   _req: express.Request,
   _res: express.Response,
 ) => {
-  // get data from req
-  const data = _req.body;
-  // get user id from req header
-  const userID = await _req.header("user_id");
-
   const accessKey = process.env.RAPYD_ACCESS_KEY!;
   const secretKey = process.env.RAPYD_SECRET_KEY!;
   const salt = crypto.lib.WordArray.random(12).toString();
   const timestamp = (Math.floor(new Date().getTime() / 1000) - 10).toString();
   const signature = calcSignature(
-    "post",
-    "/v1/user",
+    "get",
+    "/v1/user/ewallet_29b0a00f91541ca6783cd610029c5de6/accounts",
     salt,
     accessKey,
     secretKey,
-    JSON.stringify(data),
+    "",
   );
   try {
-    const result: any = await axios.post(
-      "https://sandboxapi.rapyd.net/v1/user",
-      data,
+    const result = await axios.get(
+      "https://sandboxapi.rapyd.net/v1/user/ewallet_29b0a00f91541ca6783cd610029c5de6/accounts",
       {
         headers: {
           "content-type": "application/json",
@@ -43,24 +36,12 @@ export const createWallet = async (
     );
     await _res.json({
       data: result.data,
-      message: "Successfully created",
     });
-    if (!userID) {
-      _res.send("there was an error storing data in db");
-      return;
-    }
-    console.log(result.data.data.id);
-    try {
-      await db.collection("users").doc(userID).update({
-        ewalletID: result.data.data.id,
-      });
-    } catch (err) {
-      console.log(err);
-    }
   } catch (err) {
+    console.log(err);
     await _res.status(400).json({
       error: err,
-      message: "Invalid data passed",
+      message: "Invalid wallet id passed",
     });
   }
 };
