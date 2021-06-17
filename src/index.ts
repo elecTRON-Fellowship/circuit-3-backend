@@ -27,6 +27,6 @@ app.use("/", walletFunds.router);
 app.use("/", transfer.router);
 app.use("/", balance.router);
 
-app.listen(9000, () => {
+app.listen(process.env.PORT ||9000, () => {
   console.log("server started on port 9000...");
 });
