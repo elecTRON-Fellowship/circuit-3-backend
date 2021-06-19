@@ -7,13 +7,13 @@ import { db } from "../util/firebase";
 require("dotenv").config();
 
 export const createWallet = async (
-  _req: express.Request,
-  _res: express.Response,
+  req: express.Request,
+  res: express.Response,
 ) => {
   // get data from req
-  const data = _req.body;
+  const data = req.body;
   // get user id from req header
-  const userID = await _req.header("user_id");
+  const userID = await req.header("user_id");
 
   const accessKey = process.env.RAPYD_ACCESS_KEY!;
   const secretKey = process.env.RAPYD_SECRET_KEY!;
@@ -41,24 +41,24 @@ export const createWallet = async (
         },
       },
     );
-    await _res.json({
+    await res.json({
       data: result.data,
       message: "Successfully created",
     });
     if (!userID) {
-      _res.send("there was an error storing data in db");
+      res.send("there was an error storing data in db");
       return;
     }
     console.log(result.data.data.id);
     try {
       await db.collection("users").doc(userID).update({
-        ewalletID: result.data.data.id,
+        walletData: result.data.data,
       });
     } catch (err) {
       console.log(err);
     }
   } catch (err) {
-    await _res.status(400).json({
+    await res.status(400).json({
       error: err,
       message: "Invalid data passed",
     });

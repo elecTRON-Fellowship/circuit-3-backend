@@ -2,7 +2,7 @@ import express from "express";
 import wallet from "./routes/create_wallet";
 import customer from "./routes/create_customer";
 import checkout from "./routes/create_checkout";
-import transfer from "./routes/create_transfer";
+import transfer from "./routes/transfer_funds";
 import balance from "./routes/retreive_balance";
 import walletFunds from "./routes/add_funds";
 import { json } from "body-parser";

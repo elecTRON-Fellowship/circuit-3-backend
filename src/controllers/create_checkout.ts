@@ -6,11 +6,11 @@ import axios from "axios";
 require("dotenv").config();
 
 export const createCheckout = async (
-  _req: express.Request,
-  _res: express.Response,
+  req: express.Request,
+  res: express.Response,
 ) => {
   // get data from req
-  const data = _req.body;
+  const data = req.body;
 
   const accessKey = process.env.RAPYD_ACCESS_KEY!;
   const secretKey = process.env.RAPYD_SECRET_KEY!;
@@ -39,12 +39,12 @@ export const createCheckout = async (
         },
       },
     );
-    await _res.json({
+    await res.json({
       data: result.data,
       message: "Checkout created successfully",
     });
   } catch (err) {
-    await _res.json({
+    await res.json({
       error: err,
       message: "There was an error creating checkout",
     });

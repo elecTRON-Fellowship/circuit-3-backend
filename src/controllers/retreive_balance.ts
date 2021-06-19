@@ -7,7 +7,7 @@ require("dotenv").config();
 
 export const retreiveBalance = async (
   _req: express.Request,
-  _res: express.Response,
+  res: express.Response,
 ) => {
   const accessKey = process.env.RAPYD_ACCESS_KEY!;
   const secretKey = process.env.RAPYD_SECRET_KEY!;
@@ -34,12 +34,12 @@ export const retreiveBalance = async (
         },
       },
     );
-    await _res.json({
+    await res.json({
       data: result.data,
     });
   } catch (err) {
     console.log(err);
-    await _res.status(400).json({
+    await res.status(400).json({
       error: err,
       message: "Invalid wallet id passed",
     });
