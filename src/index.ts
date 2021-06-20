@@ -10,7 +10,6 @@ import morgan from "morgan";
 
 require("dotenv").config();
 
-
 const app = express();
 
 app.use(json());
@@ -18,6 +17,9 @@ app.use(morgan("tiny"));
 
 app.get("/", (_req: express.Request, res: express.Response) => {
   res.send("Hey There");
+});
+app.post("/hooks", (_req: express.Request, _res: express.Response) => {
+  console.log(_req.body);
 });
 
 app.use("/", wallet.router);
@@ -27,6 +29,6 @@ app.use("/", walletFunds.router);
 app.use("/", transfer.router);
 app.use("/", balance.router);
 
-app.listen(process.env.PORT ||9000, () => {
+app.listen(process.env.PORT || 9000, () => {
   console.log("server started on port 9000...");
 });

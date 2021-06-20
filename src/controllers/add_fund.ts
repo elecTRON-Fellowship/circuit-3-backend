@@ -5,10 +5,7 @@ import axios from "axios";
 
 require("dotenv").config();
 
-export const addFunds = async (
-  req: express.Request,
-  res: express.Response,
-) => {
+export const addFunds = async (req: express.Request, res: express.Response) => {
   // get data from req
   const data = req.body;
 
@@ -26,22 +23,14 @@ export const addFunds = async (
   );
 
   try {
-    const result: any = await axios.post(
-      "https://sandboxapi.rapyd.net/v1/account/deposit",
-      data,
-      {
-        headers: {
-          "content-type": "application/json",
-          access_key: accessKey,
-          salt: salt,
-          timestamp: timestamp,
-          signature: signature,
-        },
+    await axios.post("https://sandboxapi.rapyd.net/v1/account/deposit", data, {
+      headers: {
+        "content-type": "application/json",
+        access_key: accessKey,
+        salt: salt,
+        timestamp: timestamp,
+        signature: signature,
       },
-    );
-    await res.json({
-      data: result.data,
-      message: "Funds added successfully",
     });
   } catch (err) {
     await res.status(400).json({

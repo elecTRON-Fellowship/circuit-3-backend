@@ -3,6 +3,7 @@ import crypto from "crypto-js";
 import { calcSignature } from "../util/signature";
 import axios from "axios";
 import { db } from "../util/firebase";
+import { addFunds } from "./add_fund";
 
 require("dotenv").config();
 
@@ -28,6 +29,7 @@ export const createWallet = async (
     JSON.stringify(data),
   );
   try {
+    // create wallet
     const result: any = await axios.post(
       "https://sandboxapi.rapyd.net/v1/user",
       data,
@@ -41,26 +43,57 @@ export const createWallet = async (
         },
       },
     );
-    await res.json({
-      data: result.data,
-      message: "Successfully created",
-    });
-    if (!userID) {
-      res.send("there was an error storing data in db");
+
+    // add funds to play with
+    let nreq = express.request;
+    let nres = express.response;
+    nreq.body = {
+      ewallet: result.data.data.id,
+      amount: "10000",
+      currency: "INR",
+      metadata: {
+        merchant_defined: true,
+      },
+    };
+    try {
+      await addFunds(nreq, nres);
+    } catch (err) {
+      await res.status(400).json({
+        error: err,
+        message: "Invalid data passed",
+      });
+      console.log("Add funds error");
+      console.log(err);
       return;
     }
-    console.log(result.data.data.id);
+    if (!userID) {
+      res.json("Provide a userID to store ewallet to firebase");
+      return;
+    }
     try {
       await db.collection("users").doc(userID).update({
         walletData: result.data.data,
       });
     } catch (err) {
+      await res.status(400).json({
+        error: err,
+        message: "Error storing wallet id to firebase",
+      });
+      console.log("Firebase call error");
       console.log(err);
+      return;
     }
+    await res.json({
+      data: result.data,
+      message: "Successfully created",
+    });
   } catch (err) {
     await res.status(400).json({
       error: err,
       message: "Invalid data passed",
     });
+    console.log("Firebase call error");
+    console.log(err);
+    return;
   }
 };
