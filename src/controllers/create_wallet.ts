@@ -62,8 +62,6 @@ export const createWallet = async (
         error: err,
         message: "Invalid data passed",
       });
-      console.log("Add funds error");
-      console.log(err);
       return;
     }
     if (!userID) {
@@ -79,8 +77,6 @@ export const createWallet = async (
         error: err,
         message: "Error storing wallet id to firebase",
       });
-      console.log("Firebase call error");
-      console.log(err);
       return;
     }
     await res.json({
@@ -92,8 +88,6 @@ export const createWallet = async (
       error: err,
       message: "Invalid data passed",
     });
-    console.log("Firebase call error");
-    console.log(err);
     return;
   }
 };
