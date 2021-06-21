@@ -3,7 +3,7 @@ import crypto from "crypto-js";
 import { calcSignature } from "../util/signature";
 import axios from "axios";
 import { db } from "../util/firebase";
-import { addFunds } from "./add_fund";
+import { addFundsInternal } from "./add_fund";
 
 require("dotenv").config();
 
@@ -56,7 +56,7 @@ export const createWallet = async (
       },
     };
     try {
-      await addFunds(nreq, nres);
+      await addFundsInternal(nreq, nres);
     } catch (err) {
       await res.status(400).json({
         error: err,
@@ -70,7 +70,7 @@ export const createWallet = async (
     }
     try {
       await db.collection("users").doc(userID).update({
-        walletData: result.data.data,
+        walletID: result.data.data.id,
       });
     } catch (err) {
       await res.status(400).json({

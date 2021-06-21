@@ -23,6 +23,54 @@ export const addFunds = async (req: express.Request, res: express.Response) => {
   );
 
   try {
+    const result = await axios.post(
+      "https://sandboxapi.rapyd.net/v1/account/deposit",
+      data,
+      {
+        headers: {
+          "content-type": "application/json",
+          access_key: accessKey,
+          salt: salt,
+          timestamp: timestamp,
+          signature: signature,
+        },
+      },
+    );
+    res.status(200).json({
+      data: result.data,
+      message: "Funds added successfully",
+    });
+    return;
+  } catch (err) {
+    await res.status(400).json({
+      error: err,
+      message: "Invalid data passed",
+    });
+    return;
+  }
+};
+
+export const addFundsInternal = async (
+  req: express.Request,
+  res: express.Response,
+) => {
+  // get data from req
+  const data = req.body;
+
+  const accessKey = process.env.RAPYD_ACCESS_KEY!;
+  const secretKey = process.env.RAPYD_SECRET_KEY!;
+  const salt = crypto.lib.WordArray.random(12).toString();
+  const timestamp = (Math.floor(new Date().getTime() / 1000) - 10).toString();
+  const signature = calcSignature(
+    "post",
+    "/v1/account/deposit",
+    salt,
+    accessKey,
+    secretKey,
+    JSON.stringify(data),
+  );
+
+  try {
     await axios.post("https://sandboxapi.rapyd.net/v1/account/deposit", data, {
       headers: {
         "content-type": "application/json",
@@ -37,5 +85,6 @@ export const addFunds = async (req: express.Request, res: express.Response) => {
       error: err,
       message: "Invalid data passed",
     });
+    return;
   }
 };
