@@ -38,7 +38,7 @@ export const getBalance = async (
         },
       },
     );
-    await res.json({
+    await res.status(200).json({
       data: result.data,
       message: "Successfully fetched balance",
     });

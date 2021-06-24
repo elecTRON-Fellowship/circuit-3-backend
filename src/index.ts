@@ -6,6 +6,7 @@ import transfer from "./routes/transfer_funds";
 import balance from "./routes/get_balance";
 import card from "./routes/card_payment";
 import walletFunds from "./routes/add_funds";
+import listPayMethods from "./routes/list_payout_methods";
 import { json } from "body-parser";
 import morgan from "morgan";
 
@@ -30,6 +31,7 @@ app.use("/", walletFunds.router);
 app.use("/", transfer.router);
 app.use("/", balance.router);
 app.use("/", card.router);
+app.use("/", listPayMethods.router);
 
 app.listen(process.env.PORT || 9000, () => {
   console.log("server started on port 9000...");
