@@ -3,7 +3,7 @@ import crypto from "crypto-js";
 import { calcSignature } from "../util/signature";
 import axios from "axios";
 import { db } from "../util/firebase";
-import { addFundsInternal } from "./add_fund";
+import { addFundsInternal } from "./add_funds";
 
 require("dotenv").config();
 

@@ -40,13 +40,11 @@ export const addFunds = async (req: express.Request, res: express.Response) => {
       data: result.data,
       message: "Funds added successfully",
     });
-    return;
   } catch (err) {
     await res.status(400).json({
       error: err,
       message: "Invalid data passed",
     });
-    return;
   }
 };
 

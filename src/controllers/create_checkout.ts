@@ -40,10 +40,11 @@ export const createCheckout = async (
       },
     );
     await res.json({
-      data: result.data,
+      data: result.data.data.redirect_url,
       message: "Checkout created successfully",
     });
   } catch (err) {
+    console.log(err)
     await res.json({
       error: err,
       message: "There was an error creating checkout",

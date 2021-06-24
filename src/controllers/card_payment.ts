@@ -5,20 +5,46 @@ import axios from "axios";
 
 require("dotenv").config();
 
-export const createCustomer = async (
+export const cardPayment = async (
   req: express.Request,
   res: express.Response,
 ) => {
-  // get data from req
-  const data = req.body;
+  // take ewallet id from the request
+  const { ewalletID } = req.body;
 
+  // request body
+  const data = {
+    amount: 999,
+    currency: "INR",
+    merchant_reference_id: "first",
+    payment_method: {
+      type: "in_debit_visa_card",
+      fields: {
+        number: "4111111111111111",
+        expiration_month: "11",
+        expiration_year: "21",
+        cvv: "123",
+        name: "Jane Doe",
+      },
+    },
+    ewallets: [
+      {
+        ewallet: ewalletID,
+        percentage: 100,
+      },
+    ],
+    metadeta: {
+      merchant_defined: "created",
+    },
+    capture: true,
+  };
   const accessKey = process.env.RAPYD_ACCESS_KEY!;
   const secretKey = process.env.RAPYD_SECRET_KEY!;
   const salt = crypto.lib.WordArray.random(12).toString();
   const timestamp = (Math.floor(new Date().getTime() / 1000) - 10).toString();
   const signature = calcSignature(
     "post",
-    "/v1/customers",
+    "/v1/payments",
     salt,
     accessKey,
     secretKey,
@@ -27,7 +53,7 @@ export const createCustomer = async (
 
   try {
     const result = await axios.post(
-      "https://sandboxapi.rapyd.net/v1/customers",
+      "https://sandboxapi.rapyd.net/v1/payments",
       data,
       {
         headers: {
@@ -39,9 +65,9 @@ export const createCustomer = async (
         },
       },
     );
-    await res.json({
+    await res.status(200).json({
       data: result.data,
-      message: "Customer created successfully",
+      message: "Card Payment successfully executed",
     });
   } catch (err) {
     await res.json({
