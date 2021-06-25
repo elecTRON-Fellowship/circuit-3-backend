@@ -10,7 +10,7 @@ export const listPayMethods = async (
   res: express.Response,
 ) => {
   // get data from req
-  const { category } = req.body;
+  //const { category } = req.body;
   const { beneficiaryCountry } = req.body;
   const { payoutCurrency } = req.body;
 
@@ -20,14 +20,14 @@ export const listPayMethods = async (
   const timestamp = (Math.floor(new Date().getTime() / 1000) - 10).toString();
   const signature = calcSignature(
     "get",
-    `/v1/payouts/supported_types?beneficiary_country=${beneficiaryCountry}&payout_currency=${payoutCurrency}&cateogry=${category}`,
+    `/v1/payouts/supported_types?beneficiary_country=${beneficiaryCountry}&payout_currency=${payoutCurrency}`,
     salt,
     accessKey,
     secretKey,
     "",
   );
   try {
-    const result = await axios.get(`https://sandboxapi.rapyd.net/v1/payouts/supported_types?beneficiary_country=${beneficiaryCountry}&payout_currency=${payoutCurrency}&cateogry=${category}`, {
+    const result = await axios.get(`https://sandboxapi.rapyd.net/v1/payouts/supported_types?beneficiary_country=${beneficiaryCountry}&payout_currency=${payoutCurrency}`, {
       headers: {
         "content-type": "application/json",
         access_key: accessKey,

@@ -21,7 +21,6 @@ export const addFunds = async (req: express.Request, res: express.Response) => {
     secretKey,
     JSON.stringify(data),
   );
-
   try {
     const result = await axios.post(
       "https://sandboxapi.rapyd.net/v1/account/deposit",
@@ -36,7 +35,7 @@ export const addFunds = async (req: express.Request, res: express.Response) => {
         },
       },
     );
-    res.status(200).json({
+    await res.status(200).json({
       data: result.data,
       message: "Funds added successfully",
     });

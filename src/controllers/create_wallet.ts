@@ -3,7 +3,6 @@ import crypto from "crypto-js";
 import { calcSignature } from "../util/signature";
 import axios from "axios";
 import { db } from "../util/firebase";
-import { addFundsInternal } from "./add_funds";
 
 require("dotenv").config();
 
@@ -14,7 +13,7 @@ export const createWallet = async (
   // get data from req
   const data = req.body;
   // get user id from req header
-  const userID = await req.header("user_id");
+  const userID = req.header("user_id");
 
   const accessKey = process.env.RAPYD_ACCESS_KEY!;
   const secretKey = process.env.RAPYD_SECRET_KEY!;
@@ -43,27 +42,6 @@ export const createWallet = async (
         },
       },
     );
-
-    // add funds to play with
-    let nreq = express.request;
-    let nres = express.response;
-    nreq.body = {
-      ewallet: result.data.data.id,
-      amount: "10000",
-      currency: "INR",
-      metadata: {
-        merchant_defined: true,
-      },
-    };
-    try {
-      await addFundsInternal(nreq, nres);
-    } catch (err) {
-      await res.status(400).json({
-        error: err,
-        message: "Invalid data passed",
-      });
-      return;
-    }
     if (!userID) {
       res.json("Provide a userID to store ewallet to firebase");
       return;
@@ -79,7 +57,7 @@ export const createWallet = async (
       });
       return;
     }
-    await res.json({
+    await res.status(200).json({
       data: result.data,
       message: "Successfully created",
     });

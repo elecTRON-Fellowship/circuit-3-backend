@@ -10,7 +10,7 @@ export const cardPayment = async (
   res: express.Response,
 ) => {
   // take ewallet id from the request
-  const { ewalletID } = req.body;
+  const { ewallet } = req.body;
 
   // request body
   const data = {
@@ -29,7 +29,7 @@ export const cardPayment = async (
     },
     ewallets: [
       {
-        ewallet: ewalletID,
+        ewallet: ewallet,
         percentage: 100,
       },
     ],

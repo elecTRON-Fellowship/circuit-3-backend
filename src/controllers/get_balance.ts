@@ -10,7 +10,7 @@ export const getBalance = async (
   res: express.Response,
 ) => {
   // get data from request body
-  const { ewalletID } = req.body;
+  const { ewallet } = req.body;
 
   const accessKey = process.env.RAPYD_ACCESS_KEY!;
   const secretKey = process.env.RAPYD_SECRET_KEY!;
@@ -18,7 +18,7 @@ export const getBalance = async (
   const timestamp = (Math.floor(new Date().getTime() / 1000) - 10).toString();
   const signature = calcSignature(
     "get",
-    `/v1/user/${ewalletID}/accounts`,
+    `/v1/user/${ewallet}/accounts`,
     salt,
     accessKey,
     secretKey,
@@ -27,7 +27,7 @@ export const getBalance = async (
   try {
     // get balance
     const result: any = await axios.get(
-      `https://sandboxapi.rapyd.net/v1/user/${ewalletID}/accounts`,
+      `https://sandboxapi.rapyd.net/v1/user/${ewallet}/accounts`,
       {
         headers: {
           "content-type": "application/json",
