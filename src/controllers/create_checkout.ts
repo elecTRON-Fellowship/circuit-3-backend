@@ -10,7 +10,31 @@ export const createCheckout = async (
   res: express.Response,
 ) => {
   // get data from req
-  const data = req.body;
+  const { customer } = req.body;
+  const { ewallet } = req.body;
+  const { amount } = req.body;
+  const data = {
+    amount: amount,
+    country: "IN",
+    currency: "INR",
+    customer: customer,
+    cardholder_preferred_currency: true,
+    language: "en",
+    metadata: {
+      merchant_defined: true,
+    },
+    payment_method_types_include: [
+      "in_visa_credit_card",
+      "in_visa_debit_card",
+      "in_phonepe_ewallet",
+      "in_airtelmoney_ewallet",
+      "in_paytm_ewallet",
+      "in_rupay_debit_card",
+      "in_credit_mastercard_card",
+    ],
+    ewallet: ewallet,
+    payment_method_types_exclude: []
+  };
 
   const accessKey = process.env.RAPYD_ACCESS_KEY!;
   const secretKey = process.env.RAPYD_SECRET_KEY!;
@@ -39,13 +63,12 @@ export const createCheckout = async (
         },
       },
     );
-    await res.json({
+    await res.status(200).json({
       data: result.data.data.redirect_url,
       message: "Checkout created successfully",
     });
   } catch (err) {
-    console.log(err)
-    await res.json({
+    await res.status(400).json({
       error: err,
       message: "There was an error creating checkout",
     });
