@@ -19,7 +19,7 @@ app.use(json());
 app.use(morgan("tiny"));
 
 app.get("/", (_req: express.Request, res: express.Response) => {
-  res.send("Hey There");
+  res.send("You may close this window now...");
 });
 app.post("/hooks", (_req: express.Request, _res: express.Response) => {
   console.log(_req.body);

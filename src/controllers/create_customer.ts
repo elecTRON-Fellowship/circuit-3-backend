@@ -20,7 +20,7 @@ export const createCustomer = async (
 
   const data = {
     name: name,
-    email: "aman@rapyd.net",
+    email: "hackathon@rapyd.net",
     ewallet: ewallet,
     invoice_prefix: "JD-",
     metadata: {
