@@ -2,7 +2,7 @@
 <h2 align="center">Submission for Rapyd Fintech Grand Prix Hackathon 2021</h2>
 
 <p align="center">
-  <img src="assets/images/logo.png" alt="Raven Logo" width="33%" align="center" />
+  <img src="logo/logo.png" alt="Raven Logo" width="33%" align="center" />
 </p>
 
 The modern lifestyle is all about doing more with less. Raven is an Android app made just for that. Chat with friends, lend and borrow money from those you trust, find places to visit and share cab rides with friends, all in one single app.
