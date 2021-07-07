@@ -9,7 +9,7 @@ The modern lifestyle is all about doing more with less. Raven is an Android app 
 
 ## 🧧 Rapyd Ewallet
 
-With the help of Rapyd's Wallet APIs, we are able to create a unique ewallet for our users which seamlessly integrates with other features of our app. You can use this ewallet to send/receive payments from your friends, raise funds if you are in need of money urgently and moreover, use it with 3rd-party apps like Uber, Zomato and pay their bills using directly from within our app.
+With the help of Rapyd's Wallet APIs, we are able to create a unique ewallet for our users which seamlessly integrates with other features of our app. You can use this ewallet to send/receive payments from your friends, raise funds if you are in need of money urgently and moreover, use it with 3rd-party apps like Uber, Zomato and pay its bills directly from within our app.
 
 
 ## 💳 Wallet Funding
